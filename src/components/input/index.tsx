@@ -1,4 +1,4 @@
-import { View, StyleSheet, TextInput, TextInputProps } from "react-native";
+import { StyleSheet, TextInput, TextInputProps } from "react-native";
 
 interface InputProps extends TextInputProps {}
 

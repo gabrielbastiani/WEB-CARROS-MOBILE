@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator, FlatList } from "react-native";
 import { Header } from "../../components/header";
 import { Input } from "../../components/input";
 import axios from "axios";
 import { setupAPIClient } from "../../services/api";
 import { CarProps } from "../../types/cars.type";
+import { CarItem } from "../../components/carlist";
 
 export function Home() {
 
     const [cars, setCars] = useState<CarProps[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(10);
-    const [loadImages, setLoadImages] = useState<string[]>([]);
+    const [loading, setLoading] = useState(true);
 
     const initialFilters = {
         filter: '',
@@ -21,33 +22,31 @@ export function Home() {
     const [filters, setFilters] = useState(initialFilters);
 
     useEffect(() => {
-        async function fetchCars() {
-            await loadStoreProducts();
-        }
-        fetchCars();
-    }, []);
+        async function loadStoreProducts() {
+            const apiClient = setupAPIClient();
+            try {
+                const response = await apiClient.get(`/list_all_cars_home`, {
+                    params: {
+                        page: currentPage,
+                        limit: filters.limit,
+                        filter: filters.filter
+                    },
+                });
 
-    async function loadStoreProducts() {
-        const apiClient = setupAPIClient();
-        try {
-            const response = await apiClient.get(`/list_all_cars_home`, {
-                params: {
-                    page: currentPage,
-                    limit: filters.limit,
-                    filter: filters.filter
-                },
-            });
+                setCars(response?.data?.cars || []);
+                setTotalPages(response?.data?.totalPages);
 
-            setCars(response?.data?.cars || []);
-            setTotalPages(response?.data?.totalPages);
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.log(error.response?.data);
-            } else {
-                console.error("Erro desconhecido", error);
+                setLoading(false)
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    console.log(error.response?.data);
+                } else {
+                    console.error("Erro desconhecido", error);
+                }
             }
         }
-    }
+        loadStoreProducts();
+    }, [currentPage, filters.filter, filters.limit]);
 
     const updateFilter = (filter: string, value: string) => {
         setFilters(prevFilters => ({
@@ -57,21 +56,34 @@ export function Home() {
     };
 
 
-    console.log(cars)
-
-
     return (
         <>
             <Header />
 
             <View style={styles.container}>
                 <View style={styles.inputArea}>
-                    {/* <Input
+                    <Input
                         placeholder="Procurando algum carro?"
                         value={filters.filter}
-                        onChange={(e) => updateFilter('filter', e.target.value)}
-                    /> */}
+                        onChangeText={(value) => updateFilter('filter', value)}
+                    />
                 </View>
+
+                {loading && (
+                    <ActivityIndicator style={{ marginTop: 14 }} size="large" color="#000" />
+                )}
+
+                <FlatList
+                    data={cars}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => <CarItem data={item} widthScreen={ cars.length <= 1 ? "100%" : "49%" } />}
+                    style={styles.list}
+                    numColumns={2}
+                    columnWrapperStyle={{ justifyContent: "space-between" }}
+                    contentContainerStyle={{ paddingBottom: 14 }}
+                    showsVerticalScrollIndicator={false}
+                />
+
             </View>
 
         </>
@@ -92,5 +104,10 @@ const styles = StyleSheet.create({
         padding: 8,
         backgroundColor: '#FFF',
         borderRadius: 8,
+    },
+    list: {
+        flex: 1,
+        marginTop: 4,
+        paddingTop: 14
     }
 });
