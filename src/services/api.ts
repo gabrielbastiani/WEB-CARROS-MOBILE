@@ -2,8 +2,11 @@ import axios from 'axios';
 import Config from "react-native-config";
 
 export function setupAPIClient() {
+
+    console.log(Config)
+
     const api = axios.create({
-        baseURL: Config.LOCALHOST_IP,
+        baseURL: "http://192.168.9.140:3333",
         headers: {
             'Content-Type': 'application/json',
         },
