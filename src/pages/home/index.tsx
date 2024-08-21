@@ -35,14 +35,15 @@ export function Home() {
 
                 setCars(response?.data?.cars || []);
                 setTotalPages(response?.data?.totalPages);
-
-                setLoading(false)
             } catch (error) {
                 if (axios.isAxiosError(error)) {
                     console.log(error.response?.data);
                 } else {
                     console.error("Erro desconhecido", error);
                 }
+            }
+            finally {
+                setLoading(false);
             }
         }
         loadStoreProducts();

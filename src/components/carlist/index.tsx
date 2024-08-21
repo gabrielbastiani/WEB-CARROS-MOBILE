@@ -1,5 +1,8 @@
 import { View, Text, StyleSheet, Pressable, DimensionValue, Image } from "react-native";
 import { CarProps } from "../../types/cars.type";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { StackParamList } from "../../routes";
 
 interface CarItemProps {
     data: CarProps;
@@ -7,11 +10,19 @@ interface CarItemProps {
 }
 
 export function CarItem({ data, widthScreen }: CarItemProps) {
+
+    const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
+
+    function handleNavigate() {
+        navigation.navigate("detail", { id: data.id });
+    }
+
     return (
-        <Pressable style={[styles.container, { width: widthScreen }]}>
+        <Pressable style={[styles.container, { width: widthScreen }]} onPress={handleNavigate}>
             <Image
                 style={styles.cover}
                 src={"http://192.168.9.140:3333/files/" + data.image_car.set[0]}
+                resizeMode="cover"
             />
 
             <Text style={styles.title}>{data.name}</Text>
