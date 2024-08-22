@@ -9,7 +9,7 @@ export interface CarProps {
     price_car: string;
     description_car: string;
     image_car: {
-        set: [null]
+        set: string[] | [null]
     }
 }
 

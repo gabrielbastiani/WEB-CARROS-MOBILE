@@ -6,10 +6,12 @@ import { StackParamList } from "../../routes";
 
 interface CarItemProps {
     data: CarProps;
-    widthScreen: DimensionValue
+    widthScreen: DimensionValue;
+    enableRemove?: boolean;
+    removeItem?: () => Promise<void>;
 }
 
-export function CarItem({ data, widthScreen }: CarItemProps) {
+export function CarItem({ data, widthScreen, enableRemove = false, removeItem }: CarItemProps) {
 
     const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
 
@@ -17,8 +19,17 @@ export function CarItem({ data, widthScreen }: CarItemProps) {
         navigation.navigate("detail", { id: data.id });
     }
 
+    async function handleRemove() {
+        if (!removeItem) return;
+        await removeItem();
+    }
+
     return (
-        <Pressable style={[styles.container, { width: widthScreen }]} onPress={handleNavigate}>
+        <Pressable
+            style={[styles.container, { width: widthScreen }]}
+            onPress={handleNavigate}
+            onLongPress={enableRemove ? handleRemove : () => { }}
+        >
             <Image
                 style={styles.cover}
                 src={"http://192.168.9.140:3333/files/" + data.image_car.set[0]}

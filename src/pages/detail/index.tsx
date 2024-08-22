@@ -13,6 +13,8 @@ import { BannerLoading } from "./components/banner";
 import { Label } from "./components/label";
 import * as Linking from 'expo-linking';
 import { ModalBanner } from "./components/modal";
+import useStorage from "../../hooks/useStorage";
+import { UseToast } from "../../hooks/useToast";
 
 type RouteDetailParams = {
     detail: {
@@ -31,6 +33,8 @@ export function Detail() {
     const [loading, setLoading] = useState(true);
     const [modalVisibile, setModalVisibile] = useState(false);
     const [selectedImage, setSelectedImage] = useState("");
+    const { saveItem } = useStorage();
+    const { showToast } = UseToast();
 
     useEffect(() => {
         if (!route.params.id) {
@@ -81,6 +85,12 @@ export function Detail() {
         setSelectedImage("");
     }
 
+    async function handleFavoriteCar() {
+        if(!car) return;
+        await saveItem(car);
+        showToast("Carro favoritado com sucesso!", "SUCCESS");
+    }
+
     return (
         <ScrollView showsVerticalScrollIndicator={false}>
             <SafeAreaView>
@@ -99,7 +109,7 @@ export function Detail() {
                     )}
 
                     <View style={styles.header}>
-                        <Pressable style={styles.saveContent}>
+                        <Pressable style={styles.saveContent} onPress={handleFavoriteCar}>
                             <Feather size={22} color="#FFF" name="bookmark" />
                         </Pressable>
 
